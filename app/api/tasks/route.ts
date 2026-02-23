@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/firebaseAdmin';
 import { extractMovieLinks, solveHBLinks, solveHubCDN, solveHubDrive } from '@/lib/solvers';
@@ -13,7 +15,7 @@ const API_MAP = {
 export async function GET() {
   try {
     const snapshot = await db.collection('scraping_tasks').orderBy('createdAt', 'desc').limit(20).get();
-    const tasks = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    const tasks = snapshot.docs.map((doc: any) => ({ id: doc.id, ...doc.data() }));
     return NextResponse.json(tasks);
   } catch (e: any) {
     return NextResponse.json({ error: e.message }, { status: 500 });
@@ -76,8 +78,8 @@ async function runBackgroundSolving(taskId: string, links: any[]) {
         // Timer Bypass
         const targetDomains = ["hblinks", "hubdrive", "hubcdn", "hubcloud"];
         let loopCount = 0;
-        while (loopCount < 3 && !targetDomains.some(d => currentLink.includes(d))) {
-          const isTimerPage = ["gadgetsweb", "review-tech", "ngwin", "cryptoinsights"].some(x => currentLink.includes(x));
+        while (loopCount < 3 && !targetDomains.some((d: string) => currentLink.includes(d))) {
+          const isTimerPage = ["gadgetsweb", "review-tech", "ngwin", "cryptoinsights"].some((x: string) => currentLink.includes(x));
           if (!isTimerPage && loopCount === 0) break;
           
           const r = await fetchWithUA(API_MAP.timer + encodeURIComponent(currentLink)).then(res => res.json());
